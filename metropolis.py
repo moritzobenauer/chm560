@@ -40,7 +40,8 @@ def CalculateEnergy(lattice: np.array, J:float, h: float, M: float):
             s = lattice[x,y]
             nnl, nns = GetNNL(lattice, x, y)
             energy += -J * s* np.sum(nns)
-    return (energy / 4.0) - h*M
+    N = lattice.shape[0] ** 2
+    return ((energy / 2.0) - h*M)
 
 
 @jit(nopython=True)
@@ -91,7 +92,9 @@ def main():
     parser.add_argument('-b', '--external', type=float, help='external field', default=0.0)
     parser.add_argument('-j', '--coupling', type=float, help='coupling constant', default=1)
     parser.add_argument('-f', '--file', type=str, default='data')
-    parser.add_argument('-d', '--details', type=bool, default=False)
+
+    parser.add_argument('--eq', type=int, help='eq time', default=5000)
+    parser.add_argument('--prod', type=int, help='eq time', default=5000) 
 
     args = parser.parse_args()
 
@@ -112,8 +115,8 @@ def main():
 
     MCTIME = gridsize ** 2
 
-    eq_time = 5000
-    simulation_time = 5000
+    eq_time = args.eq
+    simulation_time = args.prod
 
     beta = 1.
 
@@ -159,10 +162,10 @@ def main():
             output_dic['E'].append(E)
             output_dic['E2'].append(E2)
 
-    print(f'Average Magnetization: {np.average(output_dic['M']): .3f}')
-    print(f'Energy: {np.average(output_dic['E']): .3f}')
-    print(f'Energy Squared: {np.average(output_dic['E2']): .3f}')
-    print(f'C_h: {np.average(output_dic['E2']) - (np.average(output_dic['E']))**2: .3f}')
+    # print(f'Average Magnetization: {np.average(output_dic['M']): .3f}')
+    # print(f'Energy: {np.average(output_dic['E']): .3f}')
+    # print(f'Energy Squared: {np.average(output_dic['E2']): .3f}')
+    # print(f'C_h: {np.average(output_dic['E2']) - (np.average(output_dic['E']))**2: .3f}')
 
     df = pd.DataFrame.from_dict(output_dic)
     df.to_csv(filename)
