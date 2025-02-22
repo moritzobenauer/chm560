@@ -49,8 +49,11 @@ def calc_quantities(lattice: np.array, J:float, h: float) -> list[float, float, 
     M = CaclulateMagnetization(lattice)
     energy = CalculateEnergy(lattice, J, h, M)
     energy_squared = energy**2
+    msquared = M**2
+    mpower4 = M**4
+    
 
-    return [M, energy, energy_squared]
+    return [M, energy, energy_squared, msquared, mpower4]
 
 
 @jit(nopython=True)
@@ -104,7 +107,7 @@ def main():
     B = args.external # B=0 --> no external field
 
     current_dir = pathlib.Path.cwd()
-    subfolder_path = current_dir / f'output_{gridsize}x{gridsize}'
+    subfolder_path = current_dir / f'{args.file}_{gridsize}x{gridsize}'
     subfolder_path.mkdir(parents=True, exist_ok=True)
 
     filename = f'out_{gridsize}x{gridsize}_h_{B}_J_{J}.txt'
@@ -136,7 +139,7 @@ def main():
 
     interval = 10
 
-    output_dic = {'T': [], 'M': [], 'E': [], 'E2': [], 'X': [], 'J': [], 'B': []}
+    output_dic = {'T': [], 'M': [], 'E': [], 'E2': [], 'X': [], 'J': [], 'B': [], 'M2': [], 'M4': []}
 
     # EQ run
     for step in range(eq_time):
@@ -153,7 +156,7 @@ def main():
 
         if step % interval == 0:
             print(step)
-            M, E, E2 = calc_quantities(lattice, J, B)
+            M, E, E2, M2, M4 = calc_quantities(lattice, J, B)
             output_dic['T'].append(step)
             output_dic['J'].append(J)
             output_dic['B'].append(B)
@@ -161,11 +164,8 @@ def main():
             output_dic['M'].append(M)
             output_dic['E'].append(E)
             output_dic['E2'].append(E2)
-
-    # print(f'Average Magnetization: {np.average(output_dic['M']): .3f}')
-    # print(f'Energy: {np.average(output_dic['E']): .3f}')
-    # print(f'Energy Squared: {np.average(output_dic['E2']): .3f}')
-    # print(f'C_h: {np.average(output_dic['E2']) - (np.average(output_dic['E']))**2: .3f}')
+            output_dic['M2'].append(M2)
+            output_dic['M4'].append(M4)
 
     df = pd.DataFrame.from_dict(output_dic)
     df.to_csv(filename)
