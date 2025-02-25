@@ -4,7 +4,7 @@
 mamba activate MLO
 
 
-for GRIDSIZE in 48; do
+for GRIDSIZE in 48 64; do
 
 (   
     echo $GRIDSIZE
