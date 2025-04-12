@@ -7,7 +7,7 @@ TIME = 10000
 kB = 1.0
 T = 1.0
 
-# thermostat mass and N number of thermostats
+# thermostat mass and N number of coupled Nose-Hoover thermostats
 Q = 0.5
 N = 0
 
